@@ -1,0 +1,40 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.env
+.env.local
+
+# Temporary captures & execution state
+/tmp/
+/dev/shm/
+*.png.tmp
+*.jpg.tmp
+*.json.tmp
+/training/presets/**/baseline_screen.png
+/training/presets/**/crops/*.tmp
+
+# Electron / Build
+dist/
+out/
+build/
+.electron/
