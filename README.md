@@ -1,159 +1,149 @@
-# Zoth Cursorz — Multi-Agent Virtual Cursor Engine & Sovereign Computer-Use Daemon
+# ⚡ Zoth Cursorz — Sovereign Multi-Agent Virtual Cursor Engine & Workflow Trainer
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/1nc0gn30/zoth-os/main/assets/banner.png" alt="Zoth Cursorz Banner" width="100%" onerror="this.style.display='none'"/>
-  <br />
-  <p><strong>Parallel Multi-Agent Computer Use & Workflow Training Engine for ZothOS</strong></p>
-  <p><em>Engineered by Neal Frazier Tech (<a href="https://github.com/1nc0gn30">@1nc0gn30</a>) • NullAI Platform Hub</em></p>
-</div>
+> **Concurrent Virtual Pointers, 3D Dithered Braille Hologram Trails, Drift Pre-Analysis & Human-like Input Automation for Linux and Android.**
 
-<br />
-
-<div align="center">
-  <a href="https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X"><img src="https://img.shields.io/badge/Support-Buy_Us_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Us a Coffee" /></a>
-  <a href="https://nullai.tech"><img src="https://img.shields.io/badge/Security-100%25_Zero--Egress-10B981?style=for-the-badge&logo=shield&logoColor=black" alt="Zero Egress" /></a>
-  <img src="https://img.shields.io/badge/License-GPL--3.0-D4AF37?style=for-the-badge" alt="GPL-3.0" />
-</div>
+[![License: MIT](https://img.shields.io/badge/License-MIT-39d353.svg)](https://opensource.org/licenses/MIT)
+[![Platform: Linux & Android](https://img.shields.io/badge/Platform-Linux%20%7C%20Android-f5b82e.svg)](#)
+[![Zero Paywalls](https://img.shields.io/badge/Access-100%25%20Open-38bdf8.svg)](#)
 
 ---
 
-## 1. Why Zoth Cursorz?
+## ✦ Overview
 
-Every existing desktop automation framework—including Anthropic Computer Use, Bytebot, Agent-S, and UI-TARS—suffers from **agent serialization**:
-- They rely on a **single global operating system cursor**.
-- If Agent A is clicking a button, the user's real mouse is stolen.
-- Agent B and Agent C cannot perform tasks simultaneously without colliding or requiring separate virtual machines.
-
-**Zoth Cursorz breaks this bottleneck** with a **two-plane architecture**:
-1. **Plane A (Visual Layer)**: A 60 FPS transparent, click-through multi-monitor overlay. Each autonomous agent (`1nc0gn30`, `Zoth`, `Sentinel`, `Foundry`) gets their own color-coded pointer with smooth motion trails, telemetry status badges, and click ripples. Human mouse clicks pass directly through.
-2. **Plane B (Execution Layer)**: An autonomous computer-use daemon running on port `:9990` with sub-millisecond shared memory (`/dev/shm/zoth_cursorz.json`), low-level Wayland (`ydotool`) and X11 (`xdotool`) input injection, and vision-action planning.
-
----
-
-## 2. Core Features
-
-### ✦ Visual Multi-Agent Overlay (`overlay/`)
-- **Independent Agent Pointers**:
-  - `1nc0gn30`: Matrix Emerald (`#39d353`) cyber reticle & crosshair (`⣿ 1nc0gn30`).
-  - `Zoth`: 24K Liquid Gold (`#f5b82e`) astrolabe arrow (`⬡ Zoth`).
-  - `Sentinel`: Crimson Alert (`#ef4444`) target diamond (`◈ Sentinel`).
-  - `Foundry`: Cyan Precision (`#38bdf8`) crosshair (`⚙ Foundry`).
-- **Telemetry Badges**: Live action status displayed beside each cursor (e.g. `Refactoring code`, `Typing...`, `Clicking`).
-- **Click-Through Transparency**: `setIgnoreMouseEvents(true, { forward: true })` ensures your physical keyboard and mouse remain 100% uninterrupted.
-
-### ✦ Human Workflow Recording & Training (`training/`)
-- **Record Once, Perfect Always**: Record manual workflows (mouse paths, click timings, typing sequences, key combinations) using `zoth-cursorz train start <preset_name>`.
-- **Automatic Visual Landmark Crops**: Every click captures a micro-crop of the exact UI button/field, extracts OCR text (Tesseract), and computes color and edge density.
-- **Saved Presets**: Stored as self-contained bundles in `training/presets/<name>/preset.json`.
-
-### ✦ Pre-Flight Page Analysis & Drift Protection (`training/preset_runner.py`)
-- **Layout Verification**: Before an agent executes a click during preset playback, it captures the live screen and searches a bounding window around the target coordinates using OpenCV Normalized Cross-Correlation.
-- **Auto-Alignment**: If a button moved slightly ($\le 60\text{px}$) due to responsive layouts or scroll position, the cursor automatically snaps to the new coordinate.
-- **Safety Intercept Modal (`review_ui/`)**: If the target element is missing or the page layout changed (score $< 0.65$), the action **halts immediately** and launches the side-by-side Review window showing the recorded landmark vs. current desktop state. You can review what changed and choose to safely cancel or override.
+Traditional computer-use models force AI agents to serialize all desktop interactions through a single hardware mouse cursor. **Zoth Cursorz** revolutionizes this paradigm by introducing:
+1. **Multi-Agent Virtual Cursor Engine**: Spawns up to 16 concurrent virtual agent pointers across multi-monitor setups (dual 1080p, 4K, ultrawide).
+2. **3D Dithered Braille Hologram Lattice Trails**: Visualizes agent trajectories using ordered Bayer dither mathematics and Unicode U+2800 Braille matrices (`⢀⠠⠐⠈⢄⡄⠤⠶⣶⣾⣿`).
+3. **Pixel Character Companions**: Crisp, dithered 1nc0gn30 pixel-art companions floating alongside pointers with procedural breathing and telemetry auras.
+4. **Draggable & Clickable Context Menu**: Full pointer interaction with drag repositioning and a context popover providing OCR inspection, click injection, trajectory gliding, and task assignment.
+5. **Interactive Training & Visual Pre-Analysis**: Records mouse paths, timing, and clicks with automatic landmark micro-crops (`step_XXX_landmark.png`) and OCR context. During playback, pre-flight CV checks auto-align drift or pause for side-by-side discrepancy review if layouts change.
+6. **Dual Linux & Android Support**:
+   - **Linux Desktop**: Direct Wayland (`ydotool` / `grim`) and X11 (`xdotool` / `spectacle`) injection.
+   - **Android Subsystem**: Native standalone APK with foreground overlay service (`TYPE_APPLICATION_OVERLAY`), Accessibility Service gesture injection (`dispatchGesture` tap and swipe), and ADB host bridge.
 
 ---
 
-## 3. Installation & Setup
+## ✦ Visual Architecture
 
+```mermaid
+graph TD
+    AgentCluster["Autonomous Agents (1nc0gn30, Zoth, Sentinel)"] --> DaemonServer["Zoth Cursorz Daemon (:9990)"]
+    
+    subgraph MultiAgentEngine["Virtual Multi-Cursor Core"]
+        DaemonServer --> SharedMem["Shared Memory Buffer (/dev/shm/zoth_cursorz.json)"]
+        SharedMem --> LinuxOverlay["Linux 60 FPS Transparent Overlay (Electron)"]
+        SharedMem --> AndroidOverlay["Android Overlay Service (Window Manager)"]
+    end
+    
+    subgraph VisionAndSafety["Visual Verification & Pre-Flight Analysis"]
+        DaemonServer --> ActionRecorder["Action Recorder (Timings + Micro-Crops)"]
+        ActionRecorder --> OpenCVMatcher["Normalized Cross-Correlation & OCR"]
+        OpenCVMatcher -->|Match >= 0.65| AutoAlign["Auto-Align Drift (<= 60px)"]
+        OpenCVMatcher -->|Mismatch < 0.65| DiscrepancyUI["Electron Side-by-Side Review UI"]
+    end
+    
+    subgraph ExecutionLayer["Low-Level Input Injection"]
+        AutoAlign --> LinuxInject["Linux: ydotool / xdotool / uinput"]
+        AutoAlign --> AndroidInject["Android: AccessibilityService / ADB Shell"]
+    end
+```
+
+---
+
+## ✦ Installation & Setup
+
+### Linux Desktop (Wayland / X11)
 ```bash
-# Clone or navigate to the repository
+# Clone repository
+git clone https://github.com/1nc0gn30/zoth-cursorz.git ~/NullAITech/zoth-cursorz
 cd ~/NullAITech/zoth-cursorz
 
-# Binaries are installed to both ~/.local/bin and /usr/local/bin:
-which zoth-cursorz
-which zoth-computer-use
+# Binaries are pre-symlinked to /usr/local/bin/zoth-cursorz and ~/.local/bin/zoth-cursorz
+zoth-cursorz status
+```
 
-# Ensure system dependencies are present (pre-installed on ZothOS):
-sudo apt install -y ydotool xdotool tesseract-ocr python3-opencv python3-pil
+### Android Subsystem (APK)
+Build the standalone verified APK:
+```bash
+zoth-cursorz android build
+# Installs directly to connected phone or emulator:
+zoth-cursorz android install
 ```
 
 ---
 
-## 4. CLI Reference
+## ✦ CLI & Subcommand Reference
 
-### 🎮 Multi-Cursor Management (`zoth-cursorz`)
-
+### Virtual Cursor Coordination
 ```bash
-# Check daemon status & active cursors
-zoth-cursorz status
-
-# List all active virtual agent cursors
+# List all active agent cursors
 zoth-cursorz list
 
-# Spawn an agent cursor
-zoth-cursorz spawn 1nc0gn30 '#39d353' 1400 420
+# Spawn custom virtual cursor
+zoth-cursorz spawn artisan "#a855f7" 1200 450
 
-# Move agent cursor with custom action badge
-zoth-cursorz move 1nc0gn30 800 600 "Refactoring code"
+# Smoothly glide cursor with Braille hologram lattice trail
+zoth-cursorz move 1nc0gn30 1920 540 "Analyzing buffer"
 
-# Trigger click animation
+# Dispatch click
 zoth-cursorz click 1nc0gn30 left
 
-# Launch the visual transparent overlay
+# Launch transparent multi-cursor overlay
 zoth-cursorz overlay
 
-# Start the background daemon
-zoth-cursorz daemon
+# Launch multi-agent desktop control dashboard
+zoth-cursorz dashboard
 ```
 
-### 🧠 Workflow Training & Presets
+### Low-Level Computer-Use
+```bash
+# Direct tap / click
+zoth-cursorz tap 960 540
 
+# Gesture swipe (Linux drag or Android touch swipe)
+zoth-cursorz swipe 400 800 400 200 300
+
+# Type text buffer
+zoth-cursorz type "echo 'NullAI Sovereign Platform'"
+
+# Dispatch hardware key event
+zoth-cursorz key Return
+```
+
+### Workflow Training & Visual Replay
 ```bash
 # 1. Start recording a workflow preset
-zoth-cursorz train start deploy_flow
+zoth-cursorz train start login_pipeline
 
-# 2. Perform actions (clicks and typing are recorded with vision landmarks)
+# 2. Record clicks with automatic landmark crops
 zoth-cursorz train click left
-zoth-cursorz train type "npm run build"
-zoth-cursorz train key Return
 
-# 3. Stop recording and save the verified preset
+# 3. Finalize preset
 zoth-cursorz train stop
 
-# 4. List all saved presets
-zoth-cursorz presets
-
-# 5. Play back preset with pre-analysis protection
-zoth-cursorz run deploy_flow 1nc0gn30
-```
-
-### ⚡ Computer-Use Actions (`zoth-computer-use`)
-
-```bash
-# Move and click
-zoth-computer-use move 960 540 1nc0gn30
-zoth-computer-use click left 960 540 1nc0gn30
-
-# Type text into active window
-zoth-computer-use type "cargo test --release"
-
-# Send special key combinations
-zoth-computer-use key Return
-zoth-computer-use key ctrl+c
-
-# High-level autonomous VLM prompt (UI-TARS or Claude)
-zoth-computer-use prompt "Click the submit button" 1nc0gn30 ui-tars
+# 4. Replay with pre-flight visual safety checks
+zoth-cursorz run login_pipeline
 ```
 
 ---
 
-## 5. API Reference (Port :9990)
+## ✦ REST API Specification (Port `:9990`)
 
-| Endpoint | Method | Description |
-| :--- | :---: | :--- |
-| `/api/health` | `GET` | Daemon status & active cursor count |
-| `/api/cursors` | `GET` | List all active agent cursors & positions |
-| `/api/cursors/spawn` | `POST` | Spawn a virtual cursor (`{ agent_id, name, color, x, y }`) |
-| `/api/cursors/move` | `POST` | Move cursor (`{ agent_id, x, y, state, action_text }`) |
-| `/api/cursors/click` | `POST` | Trigger click ripple (`{ agent_id, click_type }`) |
-| `/api/action` | `POST` | High-level computer-use dispatch (`move`, `click`, `type`, `key`) |
-| `/api/screenshot` | `GET` | Capture full-resolution desktop screenshot |
+| Endpoint | Method | Payload / Parameters | Description |
+|---|---|---|---|
+| `/api/health` | `GET` | None | Returns daemon status and active cursor count |
+| `/api/cursors` | `GET` | None | Returns array of all active agent cursor objects |
+| `/api/cursors/spawn` | `POST` | `{"agent_id", "name", "color", "icon", "x", "y"}` | Registers a new virtual pointer |
+| `/api/cursors/move` | `POST` | `{"agent_id", "x", "y", "action_text", "execute_hardware"}` | Updates pointer position and trail |
+| `/api/cursors/click` | `POST` | `{"agent_id", "click_type", "execute_hardware"}` | Spawns ripple and Braille particle burst |
+| `/api/action` | `POST` | `{"action": "click\|move\|type\|key\|swipe", ...}` | Dispatches human-like input injection |
+| `/api/screenshot` | `GET` | None | Captures full desktop/Android screen buffer |
 
 ---
 
-## 6. Sovereignty & Open Access
-Every line of **Zoth Cursorz** is **100% free, unlocked, and open-access**. Zero paywalls, zero license keys, zero telemetry tracking.
+## ✦ Sovereign Attribution & Open-Access Guarantee
 
-- **Stripe Tip**: `https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X`
-- **Solana Wallet**: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`
-- **GitHub**: [@1nc0gn30](https://github.com/1nc0gn30) • **NullAI Platform**: [nullai.tech](https://nullai.tech)
+- **100% Free & Open-Access**: Zero paywalls, zero license checks, zero frosted-glass barriers.
+- **Engineered by Neal Frazier Tech** ([@1nc0gn30](https://github.com/1nc0gn30)) • **NullAI Platform** ([nullai.tech](https://nullai.tech)).
+- **Buy Us a Coffee (Support)**:
+  - Stripe: `https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X`
+  - Solana Tip: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`

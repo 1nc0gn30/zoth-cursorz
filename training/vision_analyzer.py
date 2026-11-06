@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # ==============================================================================
-#  Zoth Vision Analyzer — CV2 + OCR Visual Landmark Matcher
+#  Zoth Vision Analyzer — Multi-Platform CV2 + OCR Visual Landmark Matcher
 #  Extracts visual context crops around click coordinates and performs pre-flight
 #  page layout analysis with Structural Similarity (SSIM) and template matching.
+#  Platforms: Linux Desktop (Wayland/X11) & Android (ADB screencap)
 # ==============================================================================
 
 import os
@@ -15,8 +16,20 @@ class VisionAnalyzer:
     def __init__(self, crop_radius=48):
         self.crop_radius = crop_radius
 
-    def capture_fullscreen(self, output_path="/tmp/zoth_vision_snap.png"):
-        """Captures full screen on Wayland/X11."""
+    def capture_fullscreen(self, output_path="/tmp/zoth_vision_snap.png", platform="linux"):
+        """Captures full screen on Linux Wayland/X11 or Android."""
+        if platform == "android":
+            adb_bin = "/usr/bin/adb"
+            if os.path.exists(adb_bin):
+                try:
+                    with open(output_path, "wb") as f:
+                        subprocess.run([adb_bin, "exec-out", "screencap", "-p"], stdout=f, timeout=4)
+                    if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+                        return output_path
+                except Exception:
+                    pass
+
+        # Linux Desktop Fallbacks
         grim_bin = "/usr/bin/grim"
         spectacle_bin = "/usr/bin/spectacle"
 
@@ -39,9 +52,6 @@ class VisionAnalyzer:
         return None
 
     def extract_landmark_crop(self, image_path, x, y, save_crop_path=None):
-        """
-        Extracts a bounding crop around (x, y) with edge detection and OCR text.
-        """
         if not os.path.exists(image_path):
             return None
 
@@ -80,7 +90,7 @@ class VisionAnalyzer:
         edge_density = float(np.mean(edges) / 255.0)
 
         # Average color
-        avg_color = [int(c) for c in np.mean(crop, axis=(0, 1))]  # BGR
+        avg_color = [int(c) for c in np.mean(crop, axis=(0, 1))]
 
         if save_crop_path:
             os.makedirs(os.path.dirname(os.path.abspath(save_crop_path)), exist_ok=True)
@@ -97,10 +107,6 @@ class VisionAnalyzer:
         }
 
     def verify_landmark_match(self, current_screen_path, landmark_crop_path, expected_x, expected_y, search_margin=120):
-        """
-        Locates the recorded landmark crop within a search region around (expected_x, expected_y).
-        Returns match score (0.0 to 1.0) and best detected coordinates.
-        """
         if not os.path.exists(current_screen_path) or not os.path.exists(landmark_crop_path):
             return {"match": False, "score": 0.0, "reason": "File missing"}
 
@@ -112,7 +118,6 @@ class VisionAnalyzer:
         sh, sw, _ = screen.shape
         th, tw, _ = template.shape
 
-        # Bound search box around expected position
         sx1 = max(0, expected_x - search_margin - tw // 2)
         sy1 = max(0, expected_y - search_margin - th // 2)
         sx2 = min(sw, expected_x + search_margin + tw // 2)
@@ -122,7 +127,6 @@ class VisionAnalyzer:
         if search_roi.shape[0] < th or search_roi.shape[1] < tw:
             return {"match": False, "score": 0.0, "reason": "ROI smaller than template"}
 
-        # OpenCV Normalized Cross-Correlation Template Match
         res = cv2.matchTemplate(search_roi, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
@@ -131,8 +135,6 @@ class VisionAnalyzer:
         best_y = sy1 + max_loc[1] + th // 2
 
         drift = float(np.hypot(best_x - expected_x, best_y - expected_y))
-
-        # Accept if correlation > 0.65
         is_match = score >= 0.65
 
         return {

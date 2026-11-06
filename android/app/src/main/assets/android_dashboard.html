@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zoth Cursorz Mobile</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card: rgba(18, 22, 34, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --green: #39d353;
+      --gold: #f5b82e;
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --text: #e6edf3;
+      --dim: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .badge { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--green), var(--gold)); color: #000; font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .title h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+    .title p { font-size: 11px; color: var(--dim); }
+    
+    .status-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+    .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .status-row:last-child { margin-bottom: 0; }
+    .status-label { font-size: 12px; color: var(--dim); }
+    .status-val { font-size: 12px; font-weight: 700; color: var(--green); }
+
+    .btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, #238636, #2ea043); color: #fff; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, #d97706, #f5b82e); color: #000; font-weight: 800; }
+
+    .agent-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .agent-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .agent-info { display: flex; align-items: center; gap: 10px; }
+    .agent-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; }
+    .agent-name { font-size: 13px; font-weight: 700; }
+    .agent-status { font-size: 10px; color: var(--dim); }
+
+    footer { text-align: center; margin-top: 30px; font-size: 11px; color: var(--dim); }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="badge">⚡</div>
+      <div class="title">
+        <h1>Zoth Cursorz</h1>
+        <p>Android Mobile Agent Subsystem</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="status-card">
+    <div class="status-row">
+      <span class="status-label">Overlay Permission:</span>
+      <span class="status-val" id="overlayStatus">Checking...</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Accessibility Injection:</span>
+      <span class="status-val" id="accStatus" style="color: var(--gold);">Ready</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Local Host Bridge:</span>
+      <span class="status-val">:9990 Online</span>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="toggleOverlay()">
+    ✨ Toggle Floating Multi-Cursor Overlay
+  </button>
+  <button class="btn btn-gold" onclick="requestAccessibility()">
+    ⚙ Enable Autonomous Gesture Service
+  </button>
+  <button class="btn btn-secondary" onclick="runMobileDemo()">
+    ▶ Trigger Tri-Agent Screen Inspection
+  </button>
+
+  <div style="margin-top: 20px;">
+    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); font-weight: 700; margin-bottom: 8px;">Active Mobile Agents</div>
+    <div class="agent-list">
+      <div class="agent-item">
+        <div class="agent-info">
+          <div class="agent-icon" style="background: rgba(57, 211, 83, 0.2); color: var(--green); border: 1px solid var(--green);">⣿</div>
+          <div>
+            <div class="agent-name">1nc0gn30</div>
+            <div class="agent-status">Dither Lattice · Gesture Master</div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0; font-size: 11px;" onclick="pingAgent('1nc0gn30')">Tap</button>
+      </div>
+
+      <div class="agent-item">
+        <div class="agent-info">
+          <div class="agent-icon" style="background: rgba(245, 184, 46, 0.2); color: var(--gold); border: 1px solid var(--gold);">⬡</div>
+          <div>
+            <div class="agent-name">Zoth</div>
+            <div class="agent-status">Sovereign Coordinator · Swipe Relay</div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0; font-size: 11px;" onclick="pingAgent('zoth')">Tap</button>
+      </div>
+
+      <div class="agent-item">
+        <div class="agent-info">
+          <div class="agent-icon" style="background: rgba(239, 68, 68, 0.2); color: var(--red); border: 1px solid var(--red);">◈</div>
+          <div>
+            <div class="agent-name">Sentinel</div>
+            <div class="agent-status">App Guard · Pre-Flight Inspector</div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0; font-size: 11px;" onclick="pingAgent('sentinel')">Tap</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Neal Frazier Tech (@1nc0gn30) • NullAI Platform<br>
+    100% Open Access & Sovereign
+  </footer>
+
+  <script>
+    function toggleOverlay() {
+      if (window.AndroidBridge) {
+        window.AndroidBridge.toggleOverlay();
+      } else {
+        alert("Overlay toggled via Android Service");
+      }
+    }
+    function requestAccessibility() {
+      if (window.AndroidBridge) {
+        window.AndroidBridge.openAccessibilitySettings();
+      } else {
+        alert("Opening Android Accessibility Settings...");
+      }
+    }
+    function pingAgent(id) {
+      if (window.AndroidBridge) {
+        window.AndroidBridge.dispatchAgentTap(id);
+      } else {
+        alert("Dispatched autonomous tap for " + id);
+      }
+    }
+    function runMobileDemo() {
+      alert("Tri-Agent mobile orchestration triggered across Android foreground apps.");
+    }
+  </script>
+</body>
+</html>

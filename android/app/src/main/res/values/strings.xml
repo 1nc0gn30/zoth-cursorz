@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zoth Cursorz</string>
+    <string name="accessibility_service_desc">Zoth Cursorz autonomous multi-agent computer-use engine for dispatching concurrent taps, clicks, and gestures across Android apps.</string>
+</resources>
