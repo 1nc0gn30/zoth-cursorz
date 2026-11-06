@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+# ==============================================================================
+#  zoth-computer-use — Autonomous Multi-Agent Desktop Action Dispatcher
+# ==============================================================================
+
+import sys
+import json
+import urllib.request
+import urllib.error
+
+API_URL = "http://127.0.0.1:9990"
+
+def usage():
+    print("""Usage: zoth-computer-use <command> [arguments]
+
+Commands:
+  move <x> <y> [agent]          Move agent cursor to coordinates
+  click [left|right] [x] [y]    Click at coordinates or current position
+  type <text>                   Type keyboard string
+  key <key_combination>         Send key combination (e.g. Return, ctrl+c, super)
+  screenshot [path]             Take screen capture
+  status                        Check daemon health
+""")
+    sys.exit(1)
+
+def req(endpoint, data=None, method="GET"):
+    url = f"{API_URL}{endpoint}"
+    try:
+        body = json.dumps(data).encode("utf-8") if data else None
+        headers = {"Content-Type": "application/json"} if data else {}
+        r = urllib.request.Request(url, data=body, headers=headers, method=method)
+        with urllib.request.urlopen(r, timeout=4) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"Error reaching zoth-cursorz daemon on {API_URL}: {e}")
+        sys.exit(1)
+
+def main():
+    if len(sys.argv) < 2:
+        usage()
+
+    cmd = sys.argv[1]
+
+    if cmd == "status":
+        print(json.dumps(req("/api/health"), indent=2))
+
+    elif cmd == "screenshot":
+        res = req("/api/screenshot")
+        print(f"Screenshot captured: {res.get('path')}")
+
+    elif cmd == "move":
+        if len(sys.argv) < 4:
+            usage()
+        x = float(sys.argv[2])
+        y = float(sys.argv[3])
+        agent = sys.argv[4] if len(sys.argv) > 4 else "1nc0gn30"
+        res = req("/api/action", {"action": "move", "x": x, "y": y, "agent_id": agent}, method="POST")
+        print(f"Dispatched move for {agent} -> ({x}, {y})")
+
+    elif cmd == "click":
+        btn = sys.argv[2] if len(sys.argv) > 2 else "left"
+        x = float(sys.argv[3]) if len(sys.argv) > 3 else None
+        y = float(sys.argv[4]) if len(sys.argv) > 4 else None
+        agent = sys.argv[5] if len(sys.argv) > 5 else "1nc0gn30"
+        payload = {"action": "click", "button": btn, "agent_id": agent}
+        if x is not None and y is not None:
+            payload["x"] = x
+            payload["y"] = y
+        res = req("/api/action", payload, method="POST")
+        print(f"Dispatched click ({btn}) for {agent}")
+
+    elif cmd == "type":
+        if len(sys.argv) < 3:
+            usage()
+        text = " ".join(sys.argv[2:])
+        agent = "1nc0gn30"
+        res = req("/api/action", {"action": "type", "text": text, "agent_id": agent}, method="POST")
+        print(f"Dispatched typing: '{text}'")
+
+    elif cmd == "key":
+        if len(sys.argv) < 3:
+            usage()
+        key = sys.argv[2]
+        res = req("/api/action", {"action": "key", "key": key}, method="POST")
+        print(f"Dispatched key: '{key}'")
+
+    else:
+        usage()
+
+if __name__ == "__main__":
+    main()

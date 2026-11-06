@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+# ==============================================================================
+#  zoth-cursorz — CLI Utility for Multi-Agent Virtual Cursors
+# ==============================================================================
+
+import sys
+import json
+import urllib.request
+import urllib.error
+
+API_URL = "http://127.0.0.1:9990"
+
+def usage():
+    print("""Usage: zoth-cursorz <command> [arguments]
+
+Commands:
+  list                          List all active virtual agent cursors
+  spawn <agent> [color] [x] [y] Spawn a virtual cursor for an agent
+  move <agent> <x> <y> [text]   Move an agent's cursor to coordinates
+  click <agent> [left|right]    Trigger a click action on an agent's cursor
+  remove <agent>                Remove an agent's virtual cursor
+  overlay                       Launch the transparent click-through Electron overlay
+  daemon                        Start the background daemon process
+  status                        Check daemon health and connection
+
+Examples:
+  zoth-cursorz spawn 1nc0gn30 '#39d353' 1400 420
+  zoth-cursorz move 1nc0gn30 800 600 "Refactoring code"
+  zoth-cursorz click 1nc0gn30 left
+""")
+    sys.exit(1)
+
+def req(endpoint, data=None, method="GET"):
+    url = f"{API_URL}{endpoint}"
+    try:
+        body = json.dumps(data).encode("utf-8") if data else None
+        headers = {"Content-Type": "application/json"} if data else {}
+        r = urllib.request.Request(url, data=body, headers=headers, method=method)
+        with urllib.request.urlopen(r, timeout=3) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.URLError as e:
+        print(f"Error connecting to zoth-cursorz-daemon on {API_URL}: {e}")
+        print("Tip: Run 'zoth-cursorz daemon' to start the daemon.")
+        sys.exit(1)
+
+def main():
+    if len(sys.argv) < 2:
+        usage()
+
+    cmd = sys.argv[1]
+
+    if cmd == "list":
+        res = req("/api/cursors")
+        print(f"Active Virtual Cursors ({res.get('count', 0)}):")
+        for c in res.get("cursors", []):
+            print(f"  • {c.get('symbol', '✦')} {c.get('name', 'Agent')} ({c.get('agent_id')}): ({c.get('x')}, {c.get('y')}) [{c.get('state')}] {c.get('action_text')}")
+    
+    elif cmd == "status":
+        res = req("/api/health")
+        print(json.dumps(res, indent=2))
+
+    elif cmd == "spawn":
+        if len(sys.argv) < 3:
+            usage()
+        agent_id = sys.argv[2]
+        color = sys.argv[3] if len(sys.argv) > 3 else None
+        x = float(sys.argv[4]) if len(sys.argv) > 4 else 960
+        y = float(sys.argv[5]) if len(sys.argv) > 5 else 540
+        res = req("/api/cursors/spawn", {"agent_id": agent_id, "color": color, "x": x, "y": y}, method="POST")
+        print(f"Spawned virtual cursor for {agent_id}: ({x}, {y})")
+
+    elif cmd == "move":
+        if len(sys.argv) < 5:
+            usage()
+        agent_id = sys.argv[2]
+        x = float(sys.argv[3])
+        y = float(sys.argv[4])
+        text = sys.argv[5] if len(sys.argv) > 5 else ""
+        res = req("/api/cursors/move", {"agent_id": agent_id, "x": x, "y": y, "action_text": text}, method="POST")
+        print(f"Moved {agent_id} to ({x}, {y}) {text}")
+
+    elif cmd == "click":
+        if len(sys.argv) < 3:
+            usage()
+        agent_id = sys.argv[2]
+        click_type = sys.argv[3] if len(sys.argv) > 3 else "left"
+        res = req("/api/cursors/click", {"agent_id": agent_id, "click_type": click_type}, method="POST")
+        print(f"Clicked {click_type} on {agent_id}")
+
+    elif cmd == "remove":
+        if len(sys.argv) < 3:
+            usage()
+        agent_id = sys.argv[2]
+        res = req(f"/api/cursors/{agent_id}", method="DELETE")
+        print(f"Removed cursor: {agent_id}")
+
+    elif cmd == "daemon":
+        import subprocess
+        daemon_script = "/home/zoth/NullAITech/zoth-cursorz/daemon/server.py"
+        subprocess.run([sys.executable, daemon_script])
+
+    elif cmd == "overlay":
+        import subprocess
+        overlay_main = "/home/zoth/NullAITech/zoth-cursorz/overlay/main.js"
+        subprocess.run(["electron", overlay_main])
+
+    else:
+        usage()
+
+if __name__ == "__main__":
+    main()

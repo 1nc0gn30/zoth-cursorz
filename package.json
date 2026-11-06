@@ -1,0 +1,17 @@
+{
+  "name": "zoth-cursorz",
+  "version": "1.0.0",
+  "description": "Zoth Multi-Agent Virtual Cursor Engine & Sovereign Computer-Use Daemon",
+  "main": "overlay/main.js",
+  "bin": {
+    "zoth-cursorz": "bin/zoth-cursorz",
+    "zoth-computer-use": "bin/zoth-computer-use"
+  },
+  "author": "Neal Frazier (@1nc0gn30) • NullAI Platform",
+  "license": "GPL-3.0",
+  "scripts": {
+    "start": "electron overlay/main.js",
+    "daemon": "python3 daemon/server.py"
+  },
+  "dependencies": {}
+}

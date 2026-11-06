@@ -1,0 +1,16 @@
+[Unit]
+Description=Zoth Cursorz — Multi-Agent Virtual Cursor Engine & Computer Use Daemon
+After=network.target graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/zoth/NullAITech/zoth-cursorz/daemon/server.py
+Restart=always
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-0
+
+[Install]
+WantedBy=default.target
