@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # ==============================================================================
-#  zoth-cursorz — CLI Utility for Multi-Agent Virtual Cursors
+#  zoth-cursorz — CLI Utility for Multi-Agent Virtual Cursors & Training Presets
 # ==============================================================================
 
 import sys
+import os
 import json
 import urllib.request
 import urllib.error
@@ -13,7 +14,7 @@ API_URL = "http://127.0.0.1:9990"
 def usage():
     print("""Usage: zoth-cursorz <command> [arguments]
 
-Commands:
+Multi-Cursor Commands:
   list                          List all active virtual agent cursors
   spawn <agent> [color] [x] [y] Spawn a virtual cursor for an agent
   move <agent> <x> <y> [text]   Move an agent's cursor to coordinates
@@ -23,10 +24,21 @@ Commands:
   daemon                        Start the background daemon process
   status                        Check daemon health and connection
 
+Workflow Training & Preset Commands:
+  train start <preset_name>     Start recording mouse movements, clicks, and keystrokes
+  train click [button]          Record a click at current mouse position with landmark crop
+  train type <text>             Record a typing sequence
+  train key <key>               Record a keypress
+  train stop                    Stop recording and save the verified preset
+  run <preset_name> [agent]     Run a preset with vision pre-analysis & drift detection
+  presets                       List all saved automation presets
+
 Examples:
-  zoth-cursorz spawn 1nc0gn30 '#39d353' 1400 420
-  zoth-cursorz move 1nc0gn30 800 600 "Refactoring code"
-  zoth-cursorz click 1nc0gn30 left
+  zoth-cursorz train start login_flow
+  zoth-cursorz train click left
+  zoth-cursorz train type "neal@nullai.tech"
+  zoth-cursorz train stop
+  zoth-cursorz run login_flow 1nc0gn30
 """)
     sys.exit(1)
 
@@ -93,6 +105,95 @@ def main():
         agent_id = sys.argv[2]
         res = req(f"/api/cursors/{agent_id}", method="DELETE")
         print(f"Removed cursor: {agent_id}")
+
+    # Training and Presets commands
+    elif cmd == "train":
+        if len(sys.argv) < 3:
+            usage()
+        sub = sys.argv[2]
+        state_file = "/tmp/zoth_training_active.json"
+
+        if sub == "start":
+            pname = sys.argv[3] if len(sys.argv) > 3 else "preset_1"
+            from training.action_recorder import ActionRecorder
+            rec = ActionRecorder(preset_name=pname)
+            rec.start()
+            with open(state_file, "w") as f:
+                json.dump({"preset_name": pname, "pid": os.getpid()}, f)
+            print(f"Training active for preset: '{pname}'")
+
+        elif sub == "click":
+            btn = sys.argv[3] if len(sys.argv) > 3 else "left"
+            from training.action_recorder import ActionRecorder
+            pname = "preset_1"
+            if os.path.exists(state_file):
+                with open(state_file) as f:
+                    pname = json.load(f).get("preset_name", "preset_1")
+            rec = ActionRecorder(preset_name=pname)
+            rec.recording = True
+            rec.record_click(button=btn)
+
+        elif sub == "type":
+            if len(sys.argv) < 4:
+                usage()
+            text = " ".join(sys.argv[3:])
+            from training.action_recorder import ActionRecorder
+            pname = "preset_1"
+            if os.path.exists(state_file):
+                with open(state_file) as f:
+                    pname = json.load(f).get("preset_name", "preset_1")
+            rec = ActionRecorder(preset_name=pname)
+            rec.recording = True
+            rec.record_type(text)
+
+        elif sub == "key":
+            if len(sys.argv) < 4:
+                usage()
+            key = sys.argv[3]
+            from training.action_recorder import ActionRecorder
+            pname = "preset_1"
+            if os.path.exists(state_file):
+                with open(state_file) as f:
+                    pname = json.load(f).get("preset_name", "preset_1")
+            rec = ActionRecorder(preset_name=pname)
+            rec.recording = True
+            rec.record_key(key)
+
+        elif sub == "stop":
+            if os.path.exists(state_file):
+                with open(state_file) as f:
+                    pname = json.load(f).get("preset_name", "preset_1")
+                os.remove(state_file)
+            else:
+                pname = "preset_1"
+            from training.action_recorder import ActionRecorder
+            rec = ActionRecorder(preset_name=pname)
+            rec.stop()
+
+    elif cmd == "run":
+        if len(sys.argv) < 3:
+            usage()
+        preset_name = sys.argv[2]
+        agent_id = sys.argv[3] if len(sys.argv) > 3 else "1nc0gn30"
+        from training.preset_runner import PresetRunner
+        runner = PresetRunner(preset_name=preset_name, agent_id=agent_id, strict_layout_check=True)
+        runner.run()
+
+    elif cmd == "presets":
+        presets_dir = os.path.expanduser("~/NullAITech/zoth-cursorz/training/presets")
+        if os.path.exists(presets_dir):
+            ps = [d for d in os.listdir(presets_dir) if os.path.isdir(os.path.join(presets_dir, d))]
+            print(f"Saved Presets ({len(ps)}):")
+            for p in sorted(ps):
+                info_f = os.path.join(presets_dir, p, "preset.json")
+                if os.path.exists(info_f):
+                    with open(info_f) as f:
+                        d = json.load(f)
+                    print(f"  • {p} ({d.get('total_steps', 0)} steps, {d.get('duration_sec', 0)}s)")
+                else:
+                    print(f"  • {p}")
+        else:
+            print("No presets found.")
 
     elif cmd == "daemon":
         import subprocess

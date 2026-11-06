@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zoth Pre-Analysis Review — Layout Discrepancy Detected</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card: #12141c;
+      --border: #232838;
+      --gold: #f5b82e;
+      --emerald: #39d353;
+      --red: #ef4444;
+      --text: #eaeef4;
+      --muted: #8b949e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "JetBrains Mono", "Space Grotesk", sans-serif;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .title-box { display: flex; align-items: center; gap: 10px; }
+    .badge {
+      background: rgba(239, 68, 68, 0.18);
+      color: var(--red);
+      border: 1px solid var(--red);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title { font-size: 12px; color: var(--gold); font-weight: 700; }
+    .img-box {
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid #1c202a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .meta-list {
+      background: #0b0d13;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--muted);
+    }
+    .meta-list strong { color: var(--text); }
+    footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    button {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+    }
+    .btn-cancel:hover { background: rgba(239, 68, 68, 0.15); }
+    .btn-proceed {
+      background: var(--emerald);
+      border: 1px solid var(--emerald);
+      color: #000;
+    }
+    .btn-proceed:hover { opacity: 0.9; transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-box">
+      <span class="badge">LAYOUT DISCREPANCY</span>
+      <h1>Pre-Analysis Safety Intercept</h1>
+    </div>
+    <div style="font-size: 11px; color: var(--muted);">Zoth Cursorz · Verification Guardrail</div>
+  </header>
+
+  <div class="content-grid">
+    <div class="panel">
+      <div class="panel-title">✦ RECORDED TRAINING LANDMARK</div>
+      <div class="img-box">
+        <img id="recordedCrop" src="" alt="Recorded Element Crop">
+      </div>
+      <div class="meta-list">
+        <div>Action: <strong id="actionText">-</strong></div>
+        <div>Expected Coordinates: <strong id="expectedCoords">-</strong></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">⚠️ CURRENT LIVE DESKTOP STATE</div>
+      <div class="img-box">
+        <img id="currentScreen" src="" alt="Live Desktop View">
+      </div>
+      <div class="meta-list">
+        <div>Match Score: <strong id="matchScore" style="color: var(--red);">-</strong></div>
+        <div>Detected Drift: <strong id="driftPx">-</strong></div>
+        <div>Reason: <strong id="reasonText">-</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <button class="btn-cancel" onclick="cancelAction()">✕ Cancel Action Preset</button>
+    <button class="btn-proceed" onclick="proceedAnyway()">⚠ Override & Proceed</button>
+  </footer>
+
+  <script>
+    const fs = require('fs');
+    const { remote } = require('electron');
+
+    const diffFile = '/tmp/zoth_layout_discrepancy.json';
+    try {
+      if (fs.existsSync(diffFile)) {
+        const data = JSON.parse(fs.readFileSync(diffFile, 'utf8'));
+        document.getElementById('actionText').textContent = data.action || 'click';
+        document.getElementById('expectedCoords').textContent = `(${data.expected_coords ? data.expected_coords.join(', ') : '?'})`;
+        document.getElementById('matchScore').textContent = `${data.score} (threshold: ${data.threshold})`;
+        document.getElementById('driftPx').textContent = `${data.drift_px}px`;
+        document.getElementById('reasonText').textContent = data.reason || 'Element shifted or missing';
+
+        if (data.landmark_crop) {
+          document.getElementById('recordedCrop').src = 'file://' + data.landmark_crop;
+        }
+        if (data.current_screen) {
+          document.getElementById('currentScreen').src = 'file://' + data.current_screen;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    function cancelAction() {
+      fs.writeFileSync('/tmp/zoth_review_decision.txt', 'cancel');
+      window.close();
+    }
+
+    function proceedAnyway() {
+      fs.writeFileSync('/tmp/zoth_review_decision.txt', 'proceed');
+      window.close();
+    }
+  </script>
+</body>
+</html>
