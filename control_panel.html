@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zoth Cursorz - Sovereign Multi-Agent Workspace Control</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: rgba(18, 22, 34, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent-1nc0gn30: #39d353;
+      --accent-zoth: #f5b82e;
+      --accent-sentinel: #ef4444;
+      --accent-foundry: #38bdf8;
+      --text: #e6edf3;
+      --text-dim: #8b949e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "JetBrains Mono", monospace; }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #151c2e 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: rgba(9, 10, 15, 0.7);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent-1nc0gn30), var(--accent-zoth));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #000;
+      font-size: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(57, 211, 83, 0.15);
+      color: var(--accent-1nc0gn30);
+      border: 1px solid rgba(57, 211, 83, 0.3);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-val {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    main {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cursor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .cursor-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cursor-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .card-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .agent-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .agent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .agent-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .agent-coords {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .action-badge {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      color: #94a3b8;
+      margin-bottom: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #39d353;
+      box-shadow: 0 0 8px #39d353;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .controls-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .orchestration-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .macro-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-macro {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-dim);
+      background: rgba(9, 10, 15, 0.6);
+    }
+
+    footer a {
+      color: var(--accent-zoth);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="logo-badge">⚡</div>
+      <div class="title-group">
+        <h1>Zoth Cursorz <span class="tag">Active</span></h1>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-pill">Daemon: <span class="stat-val" style="color: #39d353">Online :9990</span></div>
+      <div class="stat-pill">Overlay: <span class="stat-val" style="color: #38bdf8">Visible (Transparent)</span></div>
+      <div class="stat-pill">Agents Active: <span class="stat-val" id="agent-count">3</span></div>
+    </div>
+  </header>
+
+  <main>
+    <div>
+      <div class="section-title">
+        <span>Active Agent Cursors</span>
+        <button style="flex: 0; padding: 4px 10px;" onclick="spawnAgentModal()">+ Spawn Agent</button>
+      </div>
+
+      <div class="cursor-grid" id="cursors-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="orchestration-panel">
+      <div class="section-title"><span>Sovereign Multi-Agent Choreography</span></div>
+      <p style="font-size: 12px; color: var(--text-dim); line-height: 1.5;">
+        Simulate concurrent multi-agent autonomous computer use. Multiple agents glide their dedicated cursors, inspect screen elements, and execute actions simultaneously without blocking each other.
+      </p>
+      <div class="macro-actions">
+        <button class="btn-macro btn-primary" onclick="runChoreographyDemo()">
+          ▶ Run Tri-Agent Dance (1nc0gn30 + Zoth + Sentinel)
+        </button>
+        <button class="btn-macro" onclick="gatherToCenter()">
+          ⛶ Gather to Center
+        </button>
+        <button class="btn-macro" onclick="scatterToCorners()">
+          ⤢ Scatter to Corners
+        </button>
+        <button class="btn-macro btn-danger" onclick="triggerPresetReviewDemo()">
+          ⚠ Trigger Visual Drift Pre-Analysis Modal
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>Engineered by <strong>Neal Frazier Tech</strong> (@1nc0gn30) • NullAI Platform</div>
+    <div>Port: <code>http://127.0.0.1:9990</code> | Overlay: <code>3840x1080 Full Virtual Span</code></div>
+  </footer>
+
+  <script>
+    const DAEMON_URL = 'http://127.0.0.1:9990';
+
+    async function fetchCursors() {
+      try {
+        const res = await fetch(`${DAEMON_URL}/api/cursors`);
+        const data = await res.json();
+        renderCursors(data.cursors);
+        document.getElementById('agent-count').innerText = data.count;
+      } catch (e) {
+        console.error("Daemon poll error", e);
+      }
+    }
+
+    function renderCursors(cursors) {
+      const container = document.getElementById('cursors-container');
+      container.innerHTML = '';
+
+      cursors.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'cursor-card';
+        card.innerHTML = `
+          <div class="card-glow" style="background: ${c.color}"></div>
+          <div class="card-head">
+            <div class="agent-meta">
+              <div class="agent-avatar" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}66;">
+                ${c.symbol || '◈'}
+              </div>
+              <div>
+                <div class="agent-name">${c.name}</div>
+                <div class="agent-coords">X: ${Math.round(c.x)} | Y: ${Math.round(c.y)}</div>
+              </div>
+            </div>
+            <span style="font-size: 10px; color: ${c.color}; font-weight: 700; text-transform: uppercase;">${c.icon}</span>
+          </div>
+
+          <div class="action-badge">
+            <div class="pulse-dot" style="background: ${c.color}; box-shadow: 0 0 8px ${c.color};"></div>
+            <span>${c.action_text || 'Active / Ready for task'}</span>
+          </div>
+
+          <div class="controls-row">
+            <button onclick="pingClick('${c.agent_id}')">⚡ Click</button>
+            <button onclick="randomStep('${c.agent_id}', ${c.x}, ${c.y})">↗ Glide</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function pingClick(agentId) {
+      await fetch(`${DAEMON_URL}/api/cursors/click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agent_id: agentId, button: 'left' })
+      });
+      fetchCursors();
+    }
+
+    async function randomStep(agentId, curX, curY) {
+      const targetX = Math.max(100, Math.min(3700, curX + (Math.random() - 0.5) * 600));
+      const targetY = Math.max(100, Math.min(1000, curY + (Math.random() - 0.5) * 400));
+      await fetch(`${DAEMON_URL}/api/cursors/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: agentId,
+          x: targetX,
+          y: targetY,
+          action_text: 'Repositioning cursor'
+        })
+      });
+      fetchCursors();
+    }
+
+    async function runChoreographyDemo() {
+      const steps = [
+        { id: '1nc0gn30', x: 2600, y: 300, text: 'Scanning code buffer...' },
+        { id: 'zoth', x: 1920, y: 540, text: 'Resolving protocol AST...' },
+        { id: 'sentinel', x: 800, y: 700, text: 'Auditing secure ports...' }
+      ];
+
+      for (const s of steps) {
+        fetch(`${DAEMON_URL}/api/cursors/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_id: s.id, x: s.x, y: s.y, action_text: s.text })
+        });
+      }
+
+      setTimeout(async () => {
+        await fetch(`${DAEMON_URL}/api/cursors/click`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_id: '1nc0gn30', button: 'left' })
+        });
+        fetchCursors();
+      }, 700);
+
+      fetchCursors();
+    }
+
+    async function gatherToCenter() {
+      const targets = [
+        { id: '1nc0gn30', x: 1840, y: 500, text: 'Converging on target' },
+        { id: 'zoth', x: 1920, y: 560, text: 'Converging on target' },
+        { id: 'sentinel', x: 2000, y: 500, text: 'Converging on target' }
+      ];
+      for (const t of targets) {
+        fetch(`${DAEMON_URL}/api/cursors/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_id: t.id, x: t.x, y: t.y, action_text: t.text })
+        });
+      }
+      fetchCursors();
+    }
+
+    async function scatterToCorners() {
+      const targets = [
+        { id: '1nc0gn30', x: 400, y: 250, text: 'Sector Alpha' },
+        { id: 'zoth', x: 3400, y: 250, text: 'Sector Beta' },
+        { id: 'sentinel', x: 1920, y: 900, text: 'Sector Delta' }
+      ];
+      for (const t of targets) {
+        fetch(`${DAEMON_URL}/api/cursors/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_id: t.id, x: t.x, y: t.y, action_text: t.text })
+        });
+      }
+      fetchCursors();
+    }
+
+    function spawnAgentModal() {
+      const name = prompt("Enter Agent Identifier (e.g. quantum, artisan, forge):", "artisan");
+      if (!name) return;
+      fetch(`${DAEMON_URL}/api/cursors/spawn`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: name.toLowerCase(),
+          name: name.toUpperCase(),
+          color: '#' + Math.floor(Math.random()*16777215).toString(16),
+          symbol: '❖',
+          icon: 'crosshair',
+          x: 1000 + Math.random() * 800,
+          y: 400 + Math.random() * 400
+        })
+      }).then(() => fetchCursors());
+    }
+
+    function triggerPresetReviewDemo() {
+      alert("Launching visual pre-flight drift analysis modal test...");
+    }
+
+    setInterval(fetchCursors, 800);
+    fetchCursors();
+  </script>
+</body>
+</html>
